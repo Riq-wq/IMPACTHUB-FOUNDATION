@@ -3,17 +3,28 @@ const admin = require('firebase-admin');
 const path = require('path');
 const fs = require('fs');
 
-const SERVICE_ACCOUNT_PATH = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
-    || path.join(__dirname, 'serviceAccountKey.json');
+const SERVICE_ACCOUNT_PATHS = [
+    process.env.FIREBASE_SERVICE_ACCOUNT_PATH,
+    path.join(__dirname, 'serviceAccountKey.json'),
+    '/etc/secrets/serviceAccountKey.json'
+].filter(Boolean);
+
+let serviceAccountPath = null;
+for (const p of SERVICE_ACCOUNT_PATHS) {
+    if (fs.existsSync(p)) {
+        serviceAccountPath = p;
+        break;
+    }
+}
 
 // Initialize Admin SDK
 if (!admin.apps.length) {
-    if (fs.existsSync(SERVICE_ACCOUNT_PATH)) {
-        const serviceAccount = require(SERVICE_ACCOUNT_PATH);
+    if (serviceAccountPath) {
+        const serviceAccount = require(serviceAccountPath);
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)
         });
-        console.log('Firebase Admin initialized with service account:', SERVICE_ACCOUNT_PATH);
+        console.log('Firebase Admin initialized with service account:', serviceAccountPath);
     } else {
         admin.initializeApp({
             credential: admin.credential.applicationDefault()
