@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>M-Pesa Test</title>
+    <script>
+        async function testDonation() {
+            try {
+                const response = await fetch('/api/mpesa/stkpush', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullName: 'Test User',
+                        email: 'test@example.com',
+                        phone: '254708374149', // Use your test number
+                        amount: 1,
+                        cause: 'Test Donation'
+                    })
+                });
+                
+                const result = await response.json();
+                console.log('Response:', result);
+                alert(result.message || 'Check console for details');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + (error.message || 'Check console for details'));
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>M-Pesa Test</h1>
+    <button onclick="testDonation()">Test Donation (KSH 1)</button>
+    <div id="result"></div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+═══════════════════════════════════════════════════════════
+    IMPACTHUB FOUNDATION - CONTACT INFORMATION
+═══════════════════════════════════════════════════════════
+
+📧 EMAIL
+   mrisajuma384@gmail.com
+
+📱 PHONE
+   +254 826 623 42
+   (WhatsApp available)
+
+🌍 LOCATION
+   Nairobi, Kenya
+
+📬 CONTACT FORM
+   Formspree: https://formspree.io/f/mpqndaqr
+   Messages go to: mrisajuma384@gmail.com
+
+═══════════════════════════════════════════════════════════
+    WHAT'S UPDATED
+═══════════════════════════════════════════════════════════
+
+✅ Website contact section
+✅ Footer information
+✅ Email templates
+✅ Donation receipts
+✅ Contact form (Formspree)
+✅ All phone numbers
+✅ All email addresses
+
+═══════════════════════════════════════════════════════════
+    QUICK ACTIONS
+═══════════════════════════════════════════════════════════
+
+1. SET UP GMAIL APP PASSWORD
+   → Read: GMAIL_SETUP.md
+   → Takes: 5 minutes
+   → Enables: Donation notification emails
+
+2. TEST CONTACT FORM
+   → Go to website
+   → Fill contact form
+   → Check email: mrisajuma384@gmail.com
+
+3. TEST DONATION
+   → Make small donation
+   → Check if emails arrive
+   → Verify M-Pesa works
+
+═══════════════════════════════════════════════════════════
+    FILES TO READ
+═══════════════════════════════════════════════════════════
+
+📖 CONTACT_INFO_UPDATED.md - What was changed
+📖 GMAIL_SETUP.md - Set up email notifications
+📖 START_HERE.md - Get started with M-Pesa
+📖 HOW_TO_RECEIVE_REAL_MONEY.md - Production setup
+
+═══════════════════════════════════════════════════════════
+    IMPORTANT NOTES
+═══════════════════════════════════════════════════════════
+
+⚠️  Contact form works immediately (Formspree)
+⚠️  Donation emails need Gmail App Password setup
+⚠️  Keep .env file private (has your email)
+⚠️  Test everything before going live
+
+═══════════════════════════════════════════════════════════
+
+All contact information has been updated! 🎉
+
+Your website is ready to receive messages and donations.
+
+═══════════════════════════════════════════════════════════

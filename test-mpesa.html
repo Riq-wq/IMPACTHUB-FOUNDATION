@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>M-Pesa Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; margin-bottom: 10px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        #response { margin-top: 20px; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>M-Pesa Test</h1>
+    <div class="form-group">
+        <label for="phone">Phone Number (e.g., 2547XXXXXXXX):</label>
+        <input type="text" id="phone" value="254708374149">
+    </div>
+    <div class="form-group">
+        <label for="amount">Amount (KSH):</label>
+        <input type="number" id="amount" value="1">
+    </div>
+    <button id="payButton">Pay with M-Pesa</button>
+    <div id="response"></div>
+
+    <script>
+        document.getElementById('payButton').addEventListener('click', async () => {
+            const phone = document.getElementById('phone').value.trim();
+            const amount = document.getElementById('amount').value;
+            const responseDiv = document.getElementById('response');
+            
+            if (!phone || !amount) {
+                responseDiv.className = 'error';
+                responseDiv.textContent = 'Please fill in all fields';
+                return;
+            }
+
+            const button = document.getElementById('payButton');
+            button.disabled = true;
+            button.textContent = 'Processing...';
+            responseDiv.textContent = 'Sending payment request...';
+            responseDiv.className = '';
+
+            try {
+                const response = await fetch('/api/mpesa/stkpush', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: 'Test User',
+                        email: 'test@example.com',
+                        phone: phone,
+                        amount: parseFloat(amount),
+                        cause: 'Test Donation'
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.className = 'success';
+                    responseDiv.textContent = `Payment request sent! Check your phone to complete the payment.\n${JSON.stringify(result, null, 2)}`;
+                } else {
+                    throw new Error(result.message || 'Payment request failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.className = 'error';
+                responseDiv.textContent = `Error: ${error.message || 'Failed to process payment'}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Pay with M-Pesa';
+            }
+        });
+    </script>
+</body>
+</html>

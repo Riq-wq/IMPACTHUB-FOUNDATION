@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImpactHub - Donate & Partner for Change</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <div class="logo">
+                    <a href="index.html">Impact<span>Hub</span></a>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#causes">Causes</a></li>
+                    <li><a href="#donate">Donate</a></li>
+                    <li><a href="#partnerships">Partnerships</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-particles"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>Together We Can Make a Difference</h1>
+                <p>Join us in creating lasting change through meaningful donations and strategic partnerships.</p>
+                <div class="cta-buttons">
+                    <a href="#donate" class="btn btn-primary">Donate Now</a>
+                    <a href="#partnerships" class="btn btn-secondary">Become a Partner</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="section-header">
+                <h2>About ImpactHub</h2>
+                <p>We connect generous donors and strategic partners with meaningful causes worldwide.</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>Our Mission</h3>
+                    <p>To create sustainable impact by building bridges between those who want to help and those who need it most.</p>
+                    <h3>Our Vision</h3>
+                    <p>A world where every contribution, big or small, leads to meaningful and lasting change.</p>
+                </div>
+                <div class="about-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" data-count="500">0</span>+
+                        <span class="stat-text">Projects Funded</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-count="250">0</span>+
+                        <span class="stat-text">Partners</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-count="100">0</span>+
+                        <span class="stat-text">Countries Reached</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-count="1">0</span>M+
+                        <span class="stat-text">Lives Impacted</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Causes Section -->
+    <section class="causes" id="causes">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Causes</h2>
+                <p>Explore the areas where your support can make a real difference.</p>
+            </div>
+            <div class="causes-grid">
+                <div class="cause-card">
+                    <div class="cause-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Healthcare</h3>
+                    <p>Providing medical care and supplies to underserved communities worldwide.</p>
+                </div>
+                <div class="cause-card">
+                    <div class="cause-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Education</h3>
+                    <p>Building schools and supporting educational programs for children in need.</p>
+                </div>
+                <div class="cause-card">
+                    <div class="cause-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h3>Clean Water</h3>
+                    <p>Bringing clean, safe drinking water to communities without access.</p>
+                </div>
+                <div class="cause-card">
+                    <div class="cause-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Environment</h3>
+                    <p>Protecting our planet through sustainable initiatives and conservation.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Section -->
+    <section class="donate" id="donate">
+        <div class="container">
+            <div class="donate-content">
+                <div class="donate-text">
+                    <h2>Make a Donation</h2>
+                    <p>Your generous contribution will help us continue our mission and make a real difference in people's lives.</p>
+                    <div class="donation-options">
+                        <button class="donation-amount" data-amount="3250">KSH 3,250</button>
+                        <button class="donation-amount" data-amount="6500">KSH 6,500</button>
+                        <button class="donation-amount" data-amount="13000">KSH 13,000</button>
+                        <button class="donation-amount" data-amount="32500">KSH 32,500</button>
+                        <div class="custom-amount">
+                            <input type="number" id="custom-amount" placeholder="Custom amount">
+                        </div>
+                    </div>
+                    <form id="donation-form">
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" name="full-name" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">M-Pesa Phone Number</label>
+                            <input type="tel" id="phone" name="phone" placeholder="254826623420" required>
+                            <small>Enter your Safaricom number (e.g., 254826623420)</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="cause">Select a Cause (Optional)</label>
+                            <select id="cause" name="cause">
+                                <option value="">Where it's needed most</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="education">Education</option>
+                                <option value="water">Clean Water</option>
+                                <option value="environment">Environment</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Donate via M-Pesa</button>
+                    </form>
+                </div>
+                <div class="donate-image">
+                    <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80" alt="Donation">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partnerships Section -->
+    <section class="partnerships" id="partnerships">
+        <div class="container">
+            <div class="section-header">
+                <h2>Become a Partner</h2>
+                <p>Join forces with us to create meaningful change through strategic partnerships.</p>
+            </div>
+            <div class="partnership-content">
+                <div class="partnership-text">
+                    <h3>Why Partner With Us?</h3>
+                    <p>Our corporate and organizational partners play a vital role in helping us achieve our mission. Together, we can create sustainable impact and make a real difference in communities around the world.</p>
+                    
+                    <h4>Partnership Benefits:</h4>
+                    <ul>
+                        <li>Align your brand with meaningful social impact</li>
+                        <li>Engage employees through volunteer opportunities</li>
+                        <li>Receive detailed impact reports</li>
+                        <li>Gain positive PR and marketing opportunities</li>
+                        <li>Access to networking with other like-minded organizations</li>
+                    </ul>
+                    
+                    <h4>Partnership Tiers:</h4>
+                    <div class="tiers">
+                        <div class="tier">
+                            <h5>Bronze</h5>
+                            <p>Annual contribution: KSH 650,000 - KSH 3,249,999</p>
+                        </div>
+                        <div class="tier">
+                            <h5>Silver</h5>
+                            <p>Annual contribution: KSH 3,250,000 - KSH 12,999,999</p>
+                        </div>
+                        <div class="tier">
+                            <h5>Gold</h5>
+                            <p>Annual contribution: KSH 13,000,000+</p>
+                        </div>
+                    </div>
+                    
+                    <a href="#contact" class="btn btn-primary">Become a Partner</a>
+                </div>
+                <div class="partnership-image">
+                    <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Partnership">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2>Stories of Impact</h2>
+                <p>Hear from those whose lives have been changed through our work.</p>
+            </div>
+            <div class="testimonial-slider">
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <p>"Thanks to the support from ImpactHub, our community now has access to clean water for the first time. This has transformed our lives."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J.">
+                        <div>
+                            <h5>Sarah J.</h5>
+                            <span>Beneficiary, Kenya</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <p>"Partnering with ImpactHub has been one of the best decisions we've made. Their transparency and impact are truly impressive."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Michael T.">
+                        <div>
+                            <h5>Michael T.</h5>
+                            <span>Corporate Partner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2>Get In Touch</h2>
+                    <p>Have questions about donating or partnering with us? We'd love to hear from you.</p>
+                    
+                    <div class="contact-method">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h4>Email Us</h4>
+                            <p>mrisajuma384@gmail.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>Call Us</h4>
+                            <p>+254 826 623 42</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-method">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>Visit Us</h4>
+                            <p>Nairobi, Kenya</p>
+                        </div>
+                    </div>
+                    
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/profile.php?id=61577864878530" target="_blank" rel="noopener noreferrer" title="Visit our Facebook page"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.linkedin.com/in/hassan-jumaa-a8929a411?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" title="Connect on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/tareeq_misrah?igsh=MWZna3kxNnN6c2xsMA==" target="_blank" rel="noopener noreferrer" title="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                
+                <form class="contact-form" id="contact-form" action="https://formspree.io/f/mpqndaqr" method="POST">
+                    <h3>Send Us a Message</h3>
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">Email</label>
+                        <input type="email" id="contact-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-about">
+                    <h3>ImpactHub</h3>
+                    <p>Creating meaningful change through donations and partnerships.</p>
+                    <div class="footer-social">
+                        <a href="https://www.facebook.com/profile.php?id=61577864878530" target="_blank" rel="noopener noreferrer" title="Visit our Facebook page"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.linkedin.com/in/hassan-jumaa-a8929a411?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" title="Connect on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://www.instagram.com/tareeq_misrah?igsh=MWZna3kxNnN6c2xsMA==" target="_blank" rel="noopener noreferrer" title="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#causes">Our Causes</a></li>
+                        <li><a href="#donate">Donate</a></li>
+                        <li><a href="#partnerships">Partnerships</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-newsletter">
+                    <h4>Contact Info</h4>
+                    <p><strong>Email:</strong> mrisajuma384@gmail.com</p>
+                    <p><strong>Phone:</strong> +254 826 623 42</p>
+                    <p><strong>Location:</strong> Nairobi, Kenya</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 ImpactHub Foundation. All Rights Reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="mailto:mrisajuma384@gmail.com">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- M-Pesa STK Push Modal -->
+    <div id="mpesa-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>M-Pesa Payment</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="mpesa-info">
+                    <div class="mpesa-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h4 id="modal-title">Sending Payment Request...</h4>
+                    <p id="modal-message">Please wait while we process your request</p>
+                </div>
+                
+                <!-- Payment Instructions -->
+                <div class="payment-instructions" id="payment-instructions" style="display: none;">
+                    <div class="instruction-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h5>Check Your Phone</h5>
+                            <p>An M-Pesa prompt has been sent to <strong id="mpesa-phone"></strong></p>
+                        </div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h5>Enter Your PIN</h5>
+                            <p>Enter your M-Pesa PIN on your phone to authorize the payment of <strong>KSH <span id="mpesa-amount"></span></strong></p>
+                        </div>
+                    </div>
+                    <div class="instruction-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h5>Confirm Payment</h5>
+                            <p>You will receive an M-Pesa confirmation message once the payment is complete</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Status -->
+                <div class="payment-status" id="payment-status">
+                    <div class="status-icon" id="status-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <p id="status-text">Initializing payment...</p>
+                    <div class="status-timer" id="status-timer" style="display: none;">
+                        <p><i class="fas fa-circle-notch fa-spin"></i> Waiting for M-Pesa response...</p>
+                    </div>
+                </div>
+                
+                <!-- Success/Error Messages -->
+                <div class="payment-result" id="payment-result" style="display: none;">
+                    <div class="result-icon" id="result-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 id="result-title">Payment Successful!</h4>
+                    <p id="result-message">Thank you for your generous donation</p>
+                    <p id="receipt-number" style="display: none;">Receipt: <strong id="receipt-value"></strong></p>
+                </div>
+                
+                <div class="modal-actions" id="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-payment">Cancel</button>
+                </div>
+                
+                <div class="modal-actions" id="result-actions" style="display: none;">
+                    <button type="button" class="btn btn-primary" id="close-modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/mpesa-handler.js"></script>
+</body>
+</html>

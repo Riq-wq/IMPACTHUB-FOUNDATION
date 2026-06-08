@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ImpactHub Foundation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6b7280;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .transactions-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            color: #1f2937;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .transactions-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .export-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Admin Dashboard</h1>
+            <p>ImpactHub Foundation - Transaction Management</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-hand-holding-usd"></i>
+                <h3 id="total-donations">KSH 0</h3>
+                <p>Total Donations</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3 id="completed-count">0</h3>
+                <p>Completed Transactions</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3 id="pending-count">0</h3>
+                <p>Pending Transactions</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3 id="total-donors">0</h3>
+                <p>Total Donors</p>
+            </div>
+        </div>
+
+        <!-- Transactions Section -->
+        <div class="transactions-section">
+            <div class="section-header">
+                <h2><i class="fas fa-list"></i> Recent Transactions</h2>
+                <div class="action-buttons">
+                    <button class="export-btn" onclick="exportToCSV()">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button class="refresh-btn" onclick="loadTransactions()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterTransactions('all')">All</button>
+                <button class="filter-btn" onclick="filterTransactions('completed')">Completed</button>
+                <button class="filter-btn" onclick="filterTransactions('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterTransactions('failed')">Failed</button>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="transactions-table">
+                <div id="loading" class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading transactions...</p>
+                </div>
+                <div id="no-data" class="no-data" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <p>No transactions found</p>
+                </div>
+                <table id="transactions-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Donor Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Amount</th>
+                            <th>Cause</th>
+                            <th>Status</th>
+                            <th>Receipt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactions-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allTransactions = [];
+        let currentFilter = 'all';
+
+        // Load transactions on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactions();
+            // Auto-refresh every 30 seconds
+            setInterval(loadTransactions, 30000);
+        });
+
+        async function loadTransactions() {
+            try {
+                const response = await fetch('/api/admin/transactions?limit=100');
+                const data = await response.json();
+
+                if (data.success && data.transactions) {
+                    allTransactions = data.transactions;
+                    updateStatistics();
+                    displayTransactions(allTransactions);
+                } else {
+                    showNoData();
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                showError();
+            }
+        }
+
+        function updateStatistics() {
+            const completed = allTransactions.filter(t => t.status === 'completed');
+            const pending = allTransactions.filter(t => t.status === 'pending');
+            
+            const totalAmount = completed.reduce((sum, t) => sum + (t.amount || 0), 0);
+            
+            document.getElementById('total-donations').textContent = 'KSH ' + totalAmount.toLocaleString();
+            document.getElementById('completed-count').textContent = completed.length;
+            document.getElementById('pending-count').textContent = pending.length;
+            document.getElementById('total-donors').textContent = allTransactions.length;
+        }
+
+        function displayTransactions(transactions) {
+            const loading = document.getElementById('loading');
+            const noData = document.getElementById('no-data');
+            const table = document.getElementById('transactions-table');
+            const tbody = document.getElementById('transactions-body');
+
+            loading.style.display = 'none';
+
+            if (transactions.length === 0) {
+                noData.style.display = 'block';
+                table.style.display = 'none';
+                return;
+            }
+
+            noData.style.display = 'none';
+            table.style.display = 'table';
+
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td>${formatDate(t.createdAt || t.initiatedAt)}</td>
+                    <td>${t.fullName || 'N/A'}</td>
+                    <td>${t.email || 'N/A'}</td>
+                    <td>${formatPhone(t.phone)}</td>
+                    <td><strong>KSH ${(t.amount || 0).toLocaleString()}</strong></td>
+                    <td>${t.cause || 'General'}</td>
+                    <td><span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span></td>
+                    <td>${t.mpesaReceiptNumber || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterTransactions(status) {
+            currentFilter = status;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter transactions
+            const filtered = status === 'all' 
+                ? allTransactions 
+                : allTransactions.filter(t => t.status === status);
+            
+            displayTransactions(filtered);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        function formatPhone(phone) {
+            if (!phone) return 'N/A';
+            return phone.replace(/(\d{3})(\d{3})(\d{3})(\d{3})/, '+$1 $2 $3 $4');
+        }
+
+        function showNoData() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('no-data').style.display = 'block';
+            document.getElementById('transactions-table').style.display = 'none';
+        }
+
+        function showError() {
+            document.getElementById('loading').innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+                <p style="color: #ef4444;">Failed to load transactions. Make sure the server is running.</p>
+                <button class="refresh-btn" onclick="loadTransactions()" style="margin: 20px auto;">
+                    <i class="fas fa-sync-alt"></i> Try Again
+                </button>
+            `;
+        }
+
+        function exportToCSV() {
+            if (allTransactions.length === 0) {
+                alert('No transactions to export');
+                return;
+            }
+
+            const headers = ['Date', 'Donor Name', 'Email', 'Phone', 'Amount', 'Cause', 'Status', 'Receipt'];
+            const rows = allTransactions.map(t => [
+                formatDate(t.createdAt || t.initiatedAt),
+                t.fullName || 'N/A',
+                t.email || 'N/A',
+                t.phone || 'N/A',
+                t.amount || 0,
+                t.cause || 'General',
+                t.status,
+                t.mpesaReceiptNumber || '-'
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
