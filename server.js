@@ -2,18 +2,16 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
-const crypto = require('crypto');
-const MpesaAPI = require('./mpesa-config');
-const FirebaseDB = require('./firebase-config'); // Using Firebase now!
-const RetryHandler = require('./retry-handler');
+const FirebaseDB = require('./firebase-config');
+const IntaSendAPI = require('./intasend-config');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Initialize M-Pesa API and Firebase Database
-const mpesa = new MpesaAPI();
-const transactionDB = new FirebaseDB(); // Using Firebase!
+// Initialize IntaSend API and Firebase Database
+const intasend = new IntaSendAPI();
+const transactionDB = new FirebaseDB();
 
 // Middleware
 app.use(cors());
@@ -176,7 +174,7 @@ app.get('/test-mpesa', (req, res) => {
     res.sendFile(path.join(__dirname, 'test-mpesa.html'));
 });
 
-// M-Pesa STK Push endpoint
+// IntaSend STK Push endpoint
 app.post('/api/mpesa/stkpush', async (req, res) => {
     try {
         const { fullName, email, phone, amount, cause } = req.body;
@@ -221,11 +219,10 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
             });
         }
 
-        // Use the configured account number as reference
-        const accountReference = process.env.MPESA_ACCOUNT_NUMBER || `DON${Date.now().toString().slice(-8)}`;
+        const accountReference = `DON${Date.now().toString().slice(-8)}`;
         const transactionDesc = cause ? cause.substring(0, 13) : 'ImpactHub';
         
-        console.log('Processing M-Pesa donation:', {
+        console.log('Processing donation:', {
             fullName,
             email,
             phone,
@@ -235,21 +232,23 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
             transactionDesc
         });
         
-        // Check M-Pesa configuration
-        if (!process.env.MPESA_CONSUMER_KEY || !process.env.MPESA_CONSUMER_SECRET) {
-            console.error('M-Pesa credentials not configured');
+        // Check IntaSend configuration
+        if (!process.env.INTASEND_PUBLISHABLE_KEY || !process.env.INTASEND_SECRET_KEY) {
+            console.error('IntaSend credentials not configured');
             return res.status(500).json({
                 success: false,
-                message: 'M-Pesa payment system is not configured. Please contact support.'
+                message: 'Payment system is not configured. Please contact support.'
             });
         }
         
-        console.log('Initiating STK Push...');
-        const stkResult = await mpesa.initiateSTKPush(
+        console.log('Initiating IntaSend STK Push...');
+        const stkResult = await intasend.initiateSTKPush(
             phone, 
             numAmount, 
             accountReference, 
-            transactionDesc
+            transactionDesc,
+            fullName,
+            email
         );
 
         console.log('STK Push Result:', stkResult);
@@ -278,7 +277,6 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
             ipAddress: req.ip || req.connection.remoteAddress
         };
 
-        // Save to database
         await transactionDB.saveTransaction(transactionData);
         
         console.log('Transaction saved to database:', stkResult.checkoutRequestId);
@@ -296,99 +294,58 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
         console.error('Error Message:', error.message);
         console.error('Error Stack:', error.stack);
         
-        // Provide more specific error messages
-        let userMessage = 'Error processing payment request. Please try again.';
-        
-        if (error.message.includes('access token')) {
-            userMessage = 'Unable to connect to M-Pesa. Please check your credentials.';
-        } else if (error.message.includes('Phone number')) {
-            userMessage = 'Invalid phone number format. Please use format: 254XXXXXXXXX';
-        } else if (error.message.includes('timeout')) {
-            userMessage = 'Request timed out. Please check your internet connection and try again.';
-        } else if (error.message.includes('M-Pesa API Error')) {
-            userMessage = error.message.replace('M-Pesa API Error: ', '');
-        }
-        
         res.status(500).json({ 
             success: false, 
-            message: userMessage,
+            message: 'Error processing payment request. Please try again.',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 });
 
-// M-Pesa callback endpoint
-app.post('/api/mpesa/callback', async (req, res) => {
+// IntaSend webhook endpoint (callbacks from IntaSend when payment completes)
+app.post('/api/intasend/webhook', async (req, res) => {
     try {
-        console.log('M-Pesa Callback received:', JSON.stringify(req.body, null, 2));
-        
-        // Validate callback structure - handle both sandbox and production formats
-        const callback = req.body.Body?.stkCallback || req.body;
-        
-        if (!callback) {
-            console.error('Invalid callback structure');
-            return res.status(400).json({ ResultCode: 1, ResultDesc: 'Invalid callback structure' });
-        }
-        
-        const { Body } = req.body;
-        const { stkCallback } = Body;
-        const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = stkCallback;
+        console.log('IntaSend Webhook received:', JSON.stringify(req.body, null, 2));
 
-        if (!CheckoutRequestID) {
-            console.error('Missing CheckoutRequestID in callback');
-            return res.status(400).json({ ResultCode: 1, ResultDesc: 'Missing CheckoutRequestID' });
+        const payload = req.body;
+        const invoiceId = payload.invoice_id;
+
+        if (!invoiceId) {
+            console.error('Missing invoice_id in webhook');
+            return res.status(400).json({ status: 'error', message: 'Missing invoice_id' });
         }
 
-        // Get transaction data from database
-        const transactionData = await transactionDB.getTransaction(CheckoutRequestID);
-        
+        const transactionData = await transactionDB.getTransaction(invoiceId);
+
         if (!transactionData) {
-            console.log('Transaction not found for CheckoutRequestID:', CheckoutRequestID);
-            return res.json({ ResultCode: 0, ResultDesc: 'Success' });
+            console.log('Transaction not found for invoice:', invoiceId);
+            return res.json({ status: 'ok' });
         }
 
-        // Extract payment details from callback metadata
-        let mpesaReceiptNumber = null;
-        let transactionDate = null;
-        let phoneNumber = null;
-        
-        if (ResultCode === 0 && CallbackMetadata && CallbackMetadata.Item) {
-            CallbackMetadata.Item.forEach(item => {
-                if (item.Name === 'MpesaReceiptNumber') {
-                    mpesaReceiptNumber = item.Value;
-                } else if (item.Name === 'TransactionDate') {
-                    transactionDate = item.Value;
-                } else if (item.Name === 'PhoneNumber') {
-                    phoneNumber = item.Value;
-                }
-            });
-        }
+        const state = (payload.state || '').toUpperCase();
 
-        if (ResultCode === 0) {
-            // Payment successful
-            console.log('Payment successful for:', transactionData.fullName, 'Receipt:', mpesaReceiptNumber);
-            
-            // Update transaction with M-Pesa details
+        if (state === 'COMPLETE' || state === 'COMPLETED') {
+            console.log('Payment successful for:', transactionData.fullName);
+
             const updateData = {
                 status: 'completed',
                 completedAt: new Date().toISOString(),
-                mpesaReceiptNumber,
-                transactionDate,
-                resultCode: ResultCode,
-                resultDescription: ResultDesc
+                mpesaReceiptNumber: payload.mpesa_reference || null,
+                resultCode: '0',
+                resultDescription: 'Success'
             };
-            
-            await transactionDB.updateTransaction(CheckoutRequestID, updateData);
-            
+
+            await transactionDB.updateTransaction(invoiceId, updateData);
+
             // Send thank you email
             try {
                 const emailContent = generateThankYouEmail(
-                    transactionData.fullName, 
-                    transactionData.amount, 
+                    transactionData.fullName,
+                    transactionData.amount,
                     transactionData.cause,
-                    mpesaReceiptNumber
+                    payload.mpesa_reference
                 );
-                
+
                 await transporter.sendMail({
                     from: process.env.EMAIL_USER,
                     to: transactionData.email,
@@ -396,53 +353,52 @@ app.post('/api/mpesa/callback', async (req, res) => {
                     html: emailContent.html
                 });
 
-                // Send notification to organization
                 await transporter.sendMail({
                     from: process.env.EMAIL_USER,
                     to: process.env.NOTIFICATION_EMAIL || process.env.EMAIL_USER,
                     subject: `New Donation Received - KSH ${transactionData.amount}`,
                     html: `
-                        <h2>New M-Pesa Donation Alert</h2>
+                        <h2>New Donation Alert</h2>
                         <p><strong>Donor:</strong> ${transactionData.fullName}</p>
                         <p><strong>Email:</strong> ${transactionData.email}</p>
                         <p><strong>Phone:</strong> ${transactionData.phone}</p>
                         <p><strong>Amount:</strong> KSH ${transactionData.amount}</p>
                         <p><strong>Cause:</strong> ${transactionData.cause || 'Where it\'s needed most'}</p>
                         <p><strong>Reference:</strong> ${transactionData.accountReference}</p>
-                        <p><strong>M-Pesa Receipt:</strong> ${mpesaReceiptNumber || 'N/A'}</p>
+                        <p><strong>M-Pesa Receipt:</strong> ${payload.mpesa_reference || 'N/A'}</p>
                         <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
                     `
                 });
-                
+
                 console.log('Confirmation emails sent successfully');
             } catch (emailError) {
                 console.error('Error sending emails:', emailError);
             }
-            
-        } else {
-            // Payment failed
-            console.log('Payment failed:', ResultDesc);
-            
-            const updateData = {
+
+        } else if (state === 'FAILED' || state === 'FAIL') {
+            console.log('Payment failed for invoice:', invoiceId);
+
+            await transactionDB.updateTransaction(invoiceId, {
                 status: 'failed',
                 failedAt: new Date().toISOString(),
-                resultCode: ResultCode,
-                resultDescription: ResultDesc,
-                failureReason: ResultDesc
-            };
-            
-            await transactionDB.updateTransaction(CheckoutRequestID, updateData);
+                resultCode: '1',
+                resultDescription: payload.detail || 'Payment failed',
+                failureReason: payload.detail || 'Payment failed'
+            });
         }
 
-        // Log callback completion
-        console.log(`Transaction ${CheckoutRequestID} processed: ${ResultCode === 0 ? 'SUCCESS' : 'FAILED'}`);
-
-        res.json({ ResultCode: 0, ResultDesc: 'Success' });
+        res.json({ status: 'ok' });
 
     } catch (error) {
-        console.error('Error processing M-Pesa callback:', error);
-        res.json({ ResultCode: 1, ResultDesc: 'Error processing callback' });
+        console.error('Error processing IntaSend webhook:', error);
+        res.status(500).json({ status: 'error', message: error.message });
     }
+});
+
+// Legacy M-Pesa callback endpoint (kept for backward compatibility)
+app.post('/api/mpesa/callback', async (req, res) => {
+    console.log('M-Pesa callback received (legacy, forwarded to webhook handler):', JSON.stringify(req.body, null, 2));
+    res.json({ ResultCode: 0, ResultDesc: 'Success' });
 });
 
 // Check payment status endpoint
@@ -486,19 +442,19 @@ app.get('/api/mpesa/status/:checkoutRequestId', async (req, res) => {
             }
         }
 
-        // Query M-Pesa API for status
-        console.log('Querying M-Pesa API for status...');
-        const statusResult = await mpesa.querySTKPushStatus(checkoutRequestId);
+        // Query IntaSend API for status
+        console.log('Querying IntaSend API for status...');
+        const statusResult = await intasend.querySTKPushStatus(checkoutRequestId);
         
-        console.log('M-Pesa status result:', statusResult);
+        console.log('IntaSend status result:', statusResult);
         
         if (statusResult.success) {
-            // Return the status from M-Pesa
             const response = {
                 success: true,
                 status: statusResult.status,
                 message: statusResult.resultDesc || statusResult.status,
-                resultCode: statusResult.resultCode
+                resultCode: statusResult.resultCode,
+                mpesaReceiptNumber: statusResult.mpesaReceiptNumber
             };
             
             // If payment is completed or failed, update database
@@ -507,6 +463,7 @@ app.get('/api/mpesa/status/:checkoutRequestId', async (req, res) => {
                     status: statusResult.status,
                     resultCode: statusResult.resultCode,
                     resultDescription: statusResult.resultDesc,
+                    mpesaReceiptNumber: statusResult.mpesaReceiptNumber || null,
                     [statusResult.status === 'completed' ? 'completedAt' : 'failedAt']: new Date().toISOString()
                 });
             }
@@ -709,9 +666,9 @@ app.get('/api/health', (req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        mpesa: {
-            configured: !!(process.env.MPESA_CONSUMER_KEY && process.env.MPESA_CONSUMER_SECRET),
-            environment: process.env.NODE_ENV || 'development'
+        payment: {
+            configured: !!(process.env.INTASEND_PUBLISHABLE_KEY && process.env.INTASEND_SECRET_KEY),
+            environment: process.env.INTASEND_SANDBOX !== 'false' ? 'sandbox' : 'production'
         },
         email: {
             configured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASS)
@@ -725,31 +682,25 @@ app.listen(PORT, () => {
     console.log('🚀 ImpactHub Server running on http://localhost:' + PORT);
     console.log('='.repeat(60));
     
-    // M-Pesa Status
-    const mpesaConfigured = !!(process.env.MPESA_CONSUMER_KEY && process.env.MPESA_CONSUMER_SECRET);
-    const isProduction = process.env.NODE_ENV === 'production' && process.env.MPESA_BUSINESS_SHORTCODE !== '174379';
+    // IntaSend Status
+    const intasendConfigured = !!(process.env.INTASEND_PUBLISHABLE_KEY && process.env.INTASEND_SECRET_KEY);
+    const isProduction = process.env.INTASEND_SANDBOX === 'false';
     
-    console.log('\n📱 M-Pesa Integration:');
-    if (mpesaConfigured) {
+    console.log('\n📱 Payment Integration:');
+    if (intasendConfigured) {
         if (isProduction) {
-            console.log('   ✅ PRODUCTION MODE - Real money will be transferred!');
-            console.log('   💰 Money goes to: ' + process.env.MPESA_BUSINESS_SHORTCODE);
-            console.log('   🔗 Callback URL: ' + (process.env.MPESA_CALLBACK_URL || 'Not set'));
-            
-            if (!process.env.MPESA_CALLBACK_URL || process.env.MPESA_CALLBACK_URL === 'https://mydomain.com/pat') {
-                console.log('   ⚠️  WARNING: Callback URL not properly configured!');
-                console.log('   ⚠️  Payments may not complete without a valid callback URL');
-            }
+            console.log('   ✅ IntaSend PRODUCTION Mode - Real money will be transferred!');
+            console.log('   💰 Money settles to your M-Pesa number (configured in IntaSend dashboard)');
+            console.log('   🔗 Webhook URL: ' + (process.env.INTASEND_WEBHOOK_URL || 'Not set'));
         } else {
-            console.log('   🧪 SANDBOX MODE - Testing only (no real money)');
+            console.log('   🧪 IntaSend SANDBOX Mode - Testing only (no real money)');
             console.log('   ℹ️  To receive real money:');
-            console.log('      1. Get production credentials from Safaricom (0711 071 000)');
-            console.log('      2. Update .env file with real credentials');
-            console.log('      3. Set NODE_ENV=production');
-            console.log('      4. Read: HOW_TO_RECEIVE_REAL_MONEY.md');
+            console.log('      1. Set INTASEND_SANDBOX=false in .env');
+            console.log('      2. Get live keys from IntaSend dashboard');
+            console.log('      3. Configure auto-settlement to your M-Pesa in IntaSend dashboard');
         }
     } else {
-        console.log('   ❌ Not Configured - Set credentials in .env file');
+        console.log('   ❌ Not Configured - Set INTASEND_PUBLISHABLE_KEY and INTASEND_SECRET_KEY in .env');
     }
     
     // Email Status
@@ -762,10 +713,8 @@ app.listen(PORT, () => {
     
     console.log('\n🔥 Database:');
     console.log('   ✅ Firebase Firestore - Cloud database active');
-    console.log('   ✅ Real-time sync enabled');
-    console.log('   ✅ Automatic backups active');
     
-    console.log('\n🌍 Environment: ' + (process.env.NODE_ENV || 'development'));
+    console.log('\n🌍 Environment: ' + (process.env.NODE_ENV || 'development') + ' | IntaSend: ' + (process.env.INTASEND_SANDBOX !== 'false' ? 'Sandbox' : 'Production'));
     console.log('\n' + '='.repeat(60));
     console.log('📚 Quick Links:');
     console.log('   Website: http://localhost:' + PORT);
