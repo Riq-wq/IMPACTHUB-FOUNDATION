@@ -704,10 +704,7 @@ app.post('/api/admin/cleanup', async (req, res) => {
     }
 });
 
-// Health check endpoints (for Render)
-app.get('/healthz', (req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
+// Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'healthy',
