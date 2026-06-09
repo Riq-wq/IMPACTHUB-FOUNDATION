@@ -48,6 +48,35 @@
         </div>
     </section>
 
+    <!-- Live Impact Display -->
+    <section class="live-impact">
+        <div class="container">
+            <h2 class="impact-title">🌟 Our Real-Time Impact</h2>
+            <div class="impact-stats">
+                <div class="impact-item">
+                    <div class="impact-icon">💰</div>
+                    <div class="impact-value" id="total-raised">KSH 0</div>
+                    <div class="impact-label">Total Raised This Month</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-icon">❤️</div>
+                    <div class="impact-value" id="total-donations-count">0</div>
+                    <div class="impact-label">Donations Received</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-icon">🙏</div>
+                    <div class="impact-value" id="total-donors-count">0</div>
+                    <div class="impact-label">Generous Donors</div>
+                </div>
+                <div class="impact-item">
+                    <div class="impact-icon">🌍</div>
+                    <div class="impact-value" id="lives-impacted">0</div>
+                    <div class="impact-label">Lives Impacted</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- About Section -->
     <section class="about" id="about">
         <div class="container">
@@ -64,19 +93,19 @@
                 </div>
                 <div class="about-stats">
                     <div class="stat-item">
-                        <span class="stat-number" data-count="500">0</span>+
-                        <span class="stat-text">Projects Funded</span>
+                        <span class="stat-number" id="live-total-raised">0</span>
+                        <span class="stat-text">KSH Raised This Month</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number" data-count="250">0</span>+
-                        <span class="stat-text">Partners</span>
+                        <span class="stat-number" id="live-donor-count">0</span>
+                        <span class="stat-text">Generous Donors</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number" data-count="100">0</span>+
-                        <span class="stat-text">Countries Reached</span>
+                        <span class="stat-number" id="live-projects">8</span>
+                        <span class="stat-text">Active Projects</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number" data-count="1">0</span>M+
+                        <span class="stat-number">2,500</span>+
                         <span class="stat-text">Lives Impacted</span>
                     </div>
                 </div>
@@ -163,6 +192,16 @@
                                 <option value="water">Clean Water</option>
                                 <option value="environment">Environment</option>
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="donation-message">Personal Message (Optional)</label>
+                            <textarea id="donation-message" name="donation-message" rows="3" placeholder="Share why you're donating or leave a message of hope..."></textarea>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="anonymous" name="anonymous">
+                                <span>Make my donation anonymous</span>
+                            </label>
                         </div>
                         <button type="submit" class="btn btn-primary">Donate via M-Pesa</button>
                     </form>
@@ -421,6 +460,11 @@
                     <h4 id="result-title">Payment Successful!</h4>
                     <p id="result-message">Thank you for your generous donation</p>
                     <p id="receipt-number" style="display: none;">Receipt: <strong id="receipt-value"></strong></p>
+                    <div id="receipt-download" style="display: none; margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="downloadReceipt()">
+                            <i class="fas fa-download"></i> Download Receipt
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="modal-actions" id="modal-actions">

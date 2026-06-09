@@ -179,10 +179,10 @@ app.get('/test-mpesa', (req, res) => {
 // M-Pesa STK Push endpoint
 app.post('/api/mpesa/stkpush', async (req, res) => {
     try {
-        const { fullName, email, phone, amount, cause } = req.body;
+        const { fullName, email, phone, amount, cause, message, anonymous } = req.body;
         
         console.log('=== Received STK Push Request ===');
-        console.log('Request Body:', { fullName, email, phone, amount, cause });
+        console.log('Request Body:', { fullName, email, phone, amount, cause, anonymous });
         
         // Validate required fields
         if (!fullName || !email || !phone || !amount) {
@@ -266,11 +266,13 @@ app.post('/api/mpesa/stkpush', async (req, res) => {
         const transactionData = {
             checkoutRequestId: stkResult.checkoutRequestId,
             merchantRequestId: stkResult.merchantRequestId,
-            fullName,
+            fullName: anonymous ? 'Anonymous Donor' : fullName,
             email,
             phone,
             amount: numAmount,
             cause,
+            message: message || '',
+            anonymous: anonymous || false,
             accountReference,
             status: 'pending',
             initiatedAt: new Date().toISOString(),
@@ -717,6 +719,47 @@ app.get('/api/health', (req, res) => {
             configured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASS)
         }
     });
+});
+
+// Impact statistics endpoint (for live display on homepage)
+app.get('/api/impact/stats', async (req, res) => {
+    try {
+        const stats = await transactionDB.getStatistics();
+        
+        // Calculate this month's donations
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        const allTransactions = await transactionDB.getRecentTransactions(1000);
+        const thisMonthTransactions = allTransactions.filter(t => {
+            const txDate = new Date(t.createdAt || t.initiatedAt);
+            return txDate >= firstDayOfMonth && t.status === 'completed';
+        });
+        
+        const thisMonthTotal = thisMonthTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+        
+        // Estimate lives impacted (rough calculation: KSH 100 = 1 life impacted)
+        const livesImpacted = Math.floor(stats.totalAmount / 100);
+        
+        res.json({
+            success: true,
+            totalRaised: thisMonthTotal,
+            totalDonations: stats.completedCount,
+            totalDonors: stats.totalTransactions,
+            livesImpacted: livesImpacted,
+            allTimeTotal: stats.totalAmount
+        });
+    } catch (error) {
+        console.error('Error fetching impact stats:', error);
+        res.json({
+            success: true,
+            totalRaised: 0,
+            totalDonations: 0,
+            totalDonors: 0,
+            livesImpacted: 0,
+            allTimeTotal: 0
+        });
+    }
 });
 
 // Start server

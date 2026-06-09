@@ -1,4 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Load live impact stats on page load
+    loadLiveImpact();
+    // Refresh impact stats every 30 seconds
+    setInterval(loadLiveImpact, 30000);
+    
     // Mobile Navigation Toggle
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -187,14 +192,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 formattedPhone = '254' + cleanPhone;
             }
             
+            // Store donation data globally for receipt generation
+            window.lastDonationData = {
+                fullName: data['full-name'] || 'Anonymous Donor',
+                email: data.email || '',
+                phone: formattedPhone,
+                amount: parseFloat(amount),
+                cause: data.cause || 'Where it\'s needed most',
+                message: data['donation-message'] || '',
+                anonymous: data.anonymous === 'on',
+                date: new Date().toISOString()
+            };
+            
             // Show M-Pesa modal
             if (window.showMpesaModal) {
                 window.showMpesaModal({
-                    fullName: data['full-name'] || 'Donor',
+                    fullName: window.lastDonationData.anonymous ? 'Anonymous' : data['full-name'],
                     email: data.email || '',
                     phone: formattedPhone,
                     amount: parseFloat(amount),
-                    cause: data.cause || 'Donation'
+                    cause: data.cause || 'Donation',
+                    message: data['donation-message'] || '',
+                    anonymous: data.anonymous === 'on'
                 });
             } else {
                 alert('Payment system is not available. Please try again later.');
@@ -248,3 +267,211 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+// Load Live Impact Statistics
+async function loadLiveImpact() {
+    try {
+        const response = await fetch('/api/impact/stats');
+        const data = await response.json();
+        
+        if (data.success) {
+            // Animate the numbers
+            animateValue('total-raised', 0, data.totalRaised, 2000, 'KSH ');
+            animateValue('total-donations-count', 0, data.totalDonations, 2000);
+            animateValue('total-donors-count', 0, data.totalDonors, 2000);
+            animateValue('lives-impacted', 0, data.livesImpacted, 2000);
+        }
+    } catch (error) {
+        console.log('Could not load live impact stats:', error);
+        // Set default values if API fails
+        document.getElementById('total-raised').textContent = 'KSH 0';
+        document.getElementById('total-donations-count').textContent = '0';
+        document.getElementById('total-donors-count').textContent = '0';
+        document.getElementById('lives-impacted').textContent = '0';
+    }
+}
+
+// Animate number counting
+function animateValue(elementId, start, end, duration, prefix = '', suffix = '') {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const range = end - start;
+    const increment = range / (duration / 16);
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+            current = end;
+            clearInterval(timer);
+        }
+        
+        const displayValue = Math.floor(current);
+        element.textContent = prefix + displayValue.toLocaleString() + suffix;
+    }, 16);
+}
+
+// Download Receipt as PDF (simple HTML-based receipt)
+window.downloadReceipt = function() {
+    const donation = window.lastDonationData;
+    const receiptNumber = document.getElementById('receipt-value').textContent;
+    
+    if (!donation) {
+        alert('Receipt data not available');
+        return;
+    }
+    
+    // Create receipt HTML
+    const receiptHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Donation Receipt - ${receiptNumber}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .receipt-header h1 {
+            color: #667eea;
+            margin: 0;
+        }
+        .receipt-details {
+            margin: 30px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .amount-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        .amount-box h2 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .thank-you {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.5rem;
+            margin: 30px 0;
+            font-weight: bold;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-header">
+        <h1>🙏 ImpactHub Foundation</h1>
+        <p>Official Donation Receipt</p>
+    </div>
+    
+    <div class="receipt-details">
+        <div class="detail-row">
+            <span class="detail-label">Receipt Number:</span>
+            <span class="detail-value">${receiptNumber}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Date:</span>
+            <span class="detail-value">${new Date(donation.date).toLocaleString()}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Donor Name:</span>
+            <span class="detail-value">${donation.anonymous ? 'Anonymous Donor' : donation.fullName}</span>
+        </div>
+        ${donation.email && !donation.anonymous ? `
+        <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">${donation.email}</span>
+        </div>
+        ` : ''}
+        <div class="detail-row">
+            <span class="detail-label">Cause:</span>
+            <span class="detail-value">${donation.cause}</span>
+        </div>
+        ${donation.message ? `
+        <div class="detail-row">
+            <span class="detail-label">Message:</span>
+            <span class="detail-value">${donation.message}</span>
+        </div>
+        ` : ''}
+    </div>
+    
+    <div class="amount-box">
+        <p style="margin: 0; opacity: 0.9;">Donation Amount</p>
+        <h2>KSH ${donation.amount.toLocaleString()}</h2>
+    </div>
+    
+    <div class="thank-you">
+        Thank You for Your Generous Contribution!
+    </div>
+    
+    <p style="text-align: center; color: #666;">
+        Your donation will help us continue our mission of creating meaningful change
+        in communities around the world. We are deeply grateful for your support.
+    </p>
+    
+    <div class="footer">
+        <p><strong>ImpactHub Foundation</strong></p>
+        <p>Nairobi, Kenya</p>
+        <p>Email: mrisajuma384@gmail.com | Phone: +254 826 623 42</p>
+        <p style="margin-top: 20px; font-size: 0.8rem;">
+            This is an official donation receipt. Please keep it for your records.
+        </p>
+    </div>
+</body>
+</html>
+    `;
+    
+    // Create blob and download
+    const blob = new Blob([receiptHTML], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ImpactHub_Receipt_${receiptNumber}_${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    alert('Receipt downloaded! Open the HTML file in your browser and press Ctrl+P to print as PDF.');
+};

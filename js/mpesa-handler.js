@@ -159,6 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const resultMessage = document.getElementById('result-message');
         const receiptDiv = document.getElementById('receipt-number');
         const receiptValue = document.getElementById('receipt-value');
+        const receiptDownload = document.getElementById('receipt-download');
         
         resultIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
         resultIcon.style.color = '#10b981';
@@ -168,6 +169,16 @@ document.addEventListener('DOMContentLoaded', function() {
         if (receiptNumber) {
             receiptValue.textContent = receiptNumber;
             receiptDiv.style.display = 'block';
+            
+            // Store receipt number for download
+            if (window.lastDonationData) {
+                window.lastDonationData.receiptNumber = receiptNumber;
+            }
+            
+            // Show download button
+            if (receiptDownload) {
+                receiptDownload.style.display = 'block';
+            }
         }
         
         resultDiv.style.display = 'block';
@@ -181,6 +192,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.donation-amount').forEach(btn => {
             btn.classList.remove('active');
         });
+        
+        // Reload impact stats to show updated donation
+        if (window.loadLiveImpact) {
+            setTimeout(() => window.loadLiveImpact(), 2000);
+        }
     }
 
     // Show error message
