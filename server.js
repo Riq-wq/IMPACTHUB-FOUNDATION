@@ -721,6 +721,11 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// Render.com internal health check endpoint
+app.get('/healthz', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // Impact statistics endpoint (for live display on homepage)
 app.get('/api/impact/stats', async (req, res) => {
     try {
@@ -816,7 +821,7 @@ app.listen(PORT, () => {
     console.log('   Transactions: http://localhost:' + PORT + '/api/admin/transactions');
     console.log('='.repeat(60) + '\n');
     
-    // Test Firebase connection
+    // Test Firebase connection (async, don't block startup)
     console.log('🔥 Testing Firebase connection...');
     transactionDB.getStatistics().then(stats => {
         console.log('✅ Firebase connected successfully!');
@@ -824,16 +829,7 @@ app.listen(PORT, () => {
         console.log('   Completed:', stats.completedCount);
         console.log('   Total amount: KSH', stats.totalAmount.toLocaleString());
     }).catch(err => {
-        console.error('❌ Firebase connection error:', err.message);
-        console.error('   Please check your Firebase configuration');
+        console.error('⚠️ Firebase connection error:', err.message);
+        console.error('   Server will continue running, but database may not be available');
     });
-    
-    // Cleanup old transactions on startup (optional)
-    // transactionDB.cleanupOldTransactions(30).then(count => {
-    //     if (count > 0) {
-    //         console.log(`🧹 Cleaned up ${count} old transactions on startup`);
-    //     }
-    // }).catch(err => {
-    //     console.error('Error during startup cleanup:', err);
-    // });
 });
