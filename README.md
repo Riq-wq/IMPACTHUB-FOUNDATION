@@ -4,14 +4,14 @@ A modern, responsive website for donations and partnerships with automated email
 
 ## Features
 
-- 🎨 Modern, responsive design
-- 💳 Interactive donation system
-- 📧 Automated email notifications for donors
-- 🤝 Partnership information and tiers
-- 📱 Mobile-friendly interface
-- ✨ Smooth animations and transitions
-- 📊 Impact statistics counter
-- 💬 Contact form with email notifications
+-  Modern, responsive design
+-  Interactive donation system
+-  Automated email notifications for donors
+-  Partnership information and tiers
+-  Mobile-friendly interface
+-  Smooth animations and transitions
+-  Impact statistics counter
+-  Contact form with email notifications
 
 ## Email Notifications
 
