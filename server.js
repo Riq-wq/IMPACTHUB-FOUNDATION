@@ -173,7 +173,7 @@ app.get('/', (req, res) => {
 
 // Test endpoint for M-Pesa
 app.get('/test-mpesa', (req, res) => {
-    res.sendFile(path.join(__dirname, 'test-mpesa.html'));
+    res.sendFile(path.join(__dirname, 'tests', 'test-mpesa.html'));
 });
 
 // M-Pesa STK Push endpoint
